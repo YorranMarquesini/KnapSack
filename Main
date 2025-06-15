@@ -1,0 +1,89 @@
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Scanner;
+
+class Item {
+    double valor, peso, valorPorPeso;
+
+    public Item(double valor, double peso) {
+        this.valor = valor;
+        this.peso = peso;
+        this.valorPorPeso = valor / peso;
+    }
+}
+
+public class Main {
+
+    public static double mochilaFracionaria(Item[] itens, double capacidade) {
+        Arrays.sort(itens, new Comparator<Item>() {
+            @Override
+            public int compare(Item o1, Item o2) {
+                return Double.compare(o2.valorPorPeso, o1.valorPorPeso);
+            }
+        });
+
+        double valorTotal = 0.0;
+        double capacidadeAtual = capacidade;
+
+        for (Item item : itens) {
+            if (capacidadeAtual == 0) {
+                break;
+            }
+
+            if (item.peso <= capacidadeAtual) {
+                capacidadeAtual -= item.peso;
+                valorTotal += item.valor;
+                System.out.println("✔ Adicionou o item inteiro (peso: " + item.peso + ", valor: " + item.valor + ")");
+            } else {
+                double fracao = capacidadeAtual / item.peso;
+                valorTotal += item.valor * fracao;
+                System.out.printf("✔ Adicionou %.2f%% do item (peso: %.2f, valor: %.2f)\n", fracao * 100, item.peso, item.valor);
+                capacidadeAtual = 0;
+            }
+        }
+
+        return valorTotal;
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Informe a quantidade de itens: ");
+        int quantidade = scanner.nextInt();
+
+        Item[] itens = new Item[quantidade];
+
+        for (int i = 0; i < quantidade; i++) {
+            System.out.println("\nItem " + (i + 1) + ":");
+            System.out.print(" - Valor: ");
+            double valor = scanner.nextDouble();
+            System.out.print(" - Peso: ");
+            double peso = scanner.nextDouble();
+
+            if (peso <= 0) {
+                System.out.println(" Peso inválido. Insira um peso maior que 0.");
+                i--;
+                continue;
+            }
+
+            itens[i] = new Item(valor, peso);
+        }
+
+        System.out.print("\nInforme a capacidade da mochila: ");
+        double capacidade = scanner.nextDouble();
+
+        if (capacidade <= 0) {
+            System.out.println("Capacidade inválida. Insira um valor maior que 0.");
+            return;
+        }
+
+        System.out.println("\n Resolvendo o problema da Mochila Fracionária...\n");
+
+        double valorMaximo = mochilaFracionaria(itens, capacidade);
+
+        System.out.printf("\n Valor máximo que pode ser carregado na mochila: %.2f\n", valorMaximo);
+
+        scanner.close();
+    }
+}
+
